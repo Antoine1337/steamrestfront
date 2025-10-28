@@ -1,9 +1,9 @@
 export interface Jeu {
-    JeuID: number;
-    Titre: string;
-    Developpeur: string;
-    Editeur: string;
-    DateSortie?: Date;
-    Image: string;
-    Prix: number;
+    jeuId: number;
+    titre: string;
+    developpeur: string;
+    editeur: string;
+    dateSortie?: Date;
+    image: string;
+    prix: number;
 }

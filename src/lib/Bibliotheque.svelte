@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { get } from "svelte/store";
     import { API_URL } from "../config";
     import type { BibliothequeJeux } from "../model/BibliothequeJeux";
     import type { Utilisateur } from "../model/Utilisateur";
@@ -35,7 +34,7 @@
     }
 
     function enrichirBiblioJeux(jeu: BibliothequeJeux): Promise<BibliothequeJeux> {
-        return getJeuxFromId(jeu.JeuID).then(jeuDetails => {
+        return getJeuxFromId(jeu.jeuId).then(jeuDetails => {
             return {
                 ...jeu,
                 Jeu: jeuDetails
@@ -45,7 +44,7 @@
     
     function fetchUserData(user: Utilisateur) {
         loadingBiblio = true;
-        fetch(API_URL + '/utilisateurs/' + user.UtilisateurID + '/bibliothequejeux')
+        fetch(API_URL + '/utilisateurs/' + user.utilisateurId + '/bibliothequejeux')
             .then(response => response.json())
             .then(async (data) => {
                 biblioUtilisateurSelectionne = await Promise.all(data.map(async (d: BibliothequeJeux) => {
@@ -62,12 +61,14 @@
     }
 
     function fetchGameDetails(jeu: BibliothequeJeux) {
-        indexJeuSelectionne = biblioUtilisateurSelectionne.findIndex((j) => j.BibliothequeID === jeu.BibliothequeID);
+        console.log("Jeu :", jeu)
+        console.log("BiblioUtilSelect :", biblioUtilisateurSelectionne)
+        indexJeuSelectionne = biblioUtilisateurSelectionne.findIndex((j) => j.bibliothequeId === jeu.bibliothequeId);
         jeuSelectionneBiblio = biblioUtilisateurSelectionne[indexJeuSelectionne] ?? null;
     }
 
     function replaceGameDetails(jeu: BibliothequeJeux) {
-        const index = biblioUtilisateurSelectionne.findIndex((j) => j.BibliothequeID === jeu.BibliothequeID);
+        const index = biblioUtilisateurSelectionne.findIndex((j) => j.bibliothequeId === jeu.bibliothequeId);
         if (index !== -1) {
             biblioUtilisateurSelectionne[index] = jeu;
             jeuSelectionneBiblio = jeu;
@@ -75,7 +76,7 @@
     }
 
     function removeGameFromListAndPutDefault(jeuBiblio: BibliothequeJeux) {
-        const index = biblioUtilisateurSelectionne.findIndex((j) => j.BibliothequeID === jeuBiblio.BibliothequeID);
+        const index = biblioUtilisateurSelectionne.findIndex((j) => j.bibliothequeId === jeuBiblio.bibliothequeId);
         if (index !== -1) {
             biblioUtilisateurSelectionne.splice(index, 1);
             indexJeuSelectionne = Math.max(0, index - 1); // Ensure we don't go out of bounds
@@ -91,7 +92,7 @@
 
     function sendUninstallRequest(jeuBiblio: BibliothequeJeux | null) {
         if(!utilisateurSelectionne || !jeuBiblio) return; 
-        fetch(API_URL + '/utilisateurs/'+ utilisateurSelectionne.UtilisateurID + '/bibliothequejeux/' + jeuBiblio.JeuID, {
+        fetch(API_URL + '/utilisateurs/'+ utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -110,7 +111,7 @@
 
     function sendInstallRequest(jeuBiblio: BibliothequeJeux | null) {
         if(!utilisateurSelectionne || !jeuBiblio) return; 
-        fetch(API_URL + '/utilisateurs/'+ utilisateurSelectionne.UtilisateurID + '/bibliothequejeux/' + jeuBiblio.JeuID, {
+        fetch(API_URL + '/utilisateurs/'+ utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -130,7 +131,7 @@
 
     function sendDeleteFromLibraryRequest(jeuBiblio: BibliothequeJeux | null) {
         if(!utilisateurSelectionne || !jeuBiblio) return; 
-        fetch(API_URL + '/utilisateurs/' + utilisateurSelectionne.UtilisateurID + '/bibliothequejeux/' + jeuBiblio.JeuID, {
+        fetch(API_URL + '/utilisateurs/' + utilisateurSelectionne.utilisateurId + '/bibliothequejeux/' + jeuBiblio.jeuId, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -158,10 +159,10 @@
     <div class="actions actions-top">
         <h2>
             Biliothèque
-            {#if ['a', 'e', 'i', 'o', 'u'].includes(utilisateurSelectionne.NomUtilisateur[0].toLowerCase())}
-                d'{utilisateurSelectionne.NomUtilisateur}
+            {#if ['a', 'e', 'i', 'o', 'u'].includes(utilisateurSelectionne.nomUtilisateur[0].toLowerCase())}
+                d'{utilisateurSelectionne.nomUtilisateur}
             {:else}
-                de {utilisateurSelectionne.NomUtilisateur}
+                de {utilisateurSelectionne.nomUtilisateur}
             {/if}
         </h2>
         <button class="action-button" on:click={() => clearUserInfo()}>Retour</button>
@@ -172,10 +173,10 @@
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <!-- svelte-ignore a11y_missing_attribute -->
-                <a class="jeu" on:click={() => fetchGameDetails(jeu)} class:active={jeuSelectionneBiblio?.BibliothequeID === jeu.BibliothequeID}>
-                    <img src={jeu.Jeu.Image} alt={jeu.Jeu.Titre} />
+                <a class="jeu" on:click={() => fetchGameDetails(jeu)} class:active={jeuSelectionneBiblio?.bibliothequeId === jeu.bibliothequeId}>
+                    <img src={jeu.jeu.image} alt={jeu.jeu.titre} />
                     <div class="infos">
-                        <h3>{jeu.Jeu.Titre}</h3>
+                        <h3>{jeu.jeu.titre}</h3>
                     </div>
                 </a>
             {/each}
@@ -183,19 +184,19 @@
         <div class="jeu-details">
             {#if jeuSelectionneBiblio}
                 <div class="left">
-                    <img src={jeuSelectionneBiblio.Jeu.Image} alt={jeuSelectionneBiblio.Jeu.Titre} />
+                    <img src={jeuSelectionneBiblio.jeu.image} alt={jeuSelectionneBiblio.jeu.titre} />
                 </div>
                 <div class="right">
                     <div class="infos">
                         <div class="top">
-                            <h2>{jeuSelectionneBiblio.Jeu.Titre} </h2>
-                            <span class="petit-text">Par <b>{jeuSelectionneBiblio.Jeu.Developpeur}</b></span><br>
-                            <span class="petit-text">Date de sortie : <b>{jeuSelectionneBiblio.Jeu.DateSortie}</b></span>
-                            <h4>TEMPS D'UTILISATION : {jeuSelectionneBiblio.HeuresJeu} heures</h4>
+                            <h2>{jeuSelectionneBiblio.jeu.titre} </h2>
+                            <span class="petit-text">Par <b>{jeuSelectionneBiblio.jeu.developpeur}</b></span><br>
+                            <span class="petit-text">Date de sortie : <b>{jeuSelectionneBiblio.jeu.dateSortie}</b></span>
+                            <h4>TEMPS D'UTILISATION : {jeuSelectionneBiblio.heuresJeu} heures</h4>
                         </div>
                         <div class="actions">
                             <!-- Button installer / désinstaller -->
-                            {#if jeuSelectionneBiblio.EstInstalle}
+                            {#if jeuSelectionneBiblio.estInstalle}
                                 <button class="action-button warning" on:click={() => { sendUninstallRequest(jeuSelectionneBiblio) }}>Désinstaller</button>
                             {:else}
                                 <button class="action-button green" on:click={() => { sendInstallRequest(jeuSelectionneBiblio) }}>Installer</button>
@@ -214,8 +215,8 @@
     {#each utilisateurs as utilisateur}
         <div class="utilisateur">
             <div class="infos">
-                <span class="nom-user">{utilisateur.NomUtilisateur}</span>
-                <span class="petit-texte">(Rejoint le : {utilisateur.DateInscription.replace(' ', ' à ')})</span>
+                <span class="nom-user">{utilisateur.nomUtilisateur}</span>
+                <span class="petit-texte">(Rejoint le : {utilisateur.dateInscription.replace(' ', ' à ')})</span>
                 <button class="utilisateur-button" on:click={() => fetchUserData(utilisateur)}>Accès bibliothèque</button>
             </div>
         </div>

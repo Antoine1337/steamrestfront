@@ -34,7 +34,7 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ JeuID: jeu.JeuID, UtilisateurID: utilisateurSelectionne.UtilisateurID })
+                body: JSON.stringify({ jeuId: jeu.jeuId, UtilisateurID: utilisateurSelectionne.utilisateurId })
             })
                 .then(response => response.json())
                 .then(data => {
@@ -42,7 +42,7 @@
                     if (data.error) {
                         alert(data.error);
                     } else {
-                        alert(`Jeu ${jeu.Titre} ajouté à la bibliothèque de ${utilisateurSelectionne?.NomUtilisateur}`);
+                        alert(`Jeu ${jeu.titre} ajouté à la bibliothèque de ${utilisateurSelectionne?.nomUtilisateur}`);
                     }
                 })
                 .catch(error => {
@@ -60,18 +60,18 @@
     <div>Acheter les jeux pour :</div>
     <select bind:value={utilisateurSelectionne}>
         {#each utilisateurs as user}
-            <option value={user}>{user.NomUtilisateur}</option>
+            <option value={user}>{user.nomUtilisateur}</option>
         {/each}
     </select>
 </div>
 <div class="jeux">
     {#each jeux as jeu}
         <div class="jeu">
-            <img src={jeu.Image} alt={jeu.Titre} />
+            <img src={jeu.image} alt={jeu.titre} />
             <div class="infos">
                 <div class="top">
-                    <h4>{jeu.Titre}</h4>
-                    <h2>{jeu.Prix} €</h2>
+                    <h4>{jeu.titre}</h4>
+                    <h2>{jeu.prix} €</h2>
                 </div>
                 <button on:click={() => ajouterJeu(jeu)}>Acheter</button>
             </div>
