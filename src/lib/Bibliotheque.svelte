@@ -37,7 +37,7 @@
         return getJeuxFromId(jeu.jeuId).then(jeuDetails => {
             return {
                 ...jeu,
-                Jeu: jeuDetails
+                jeu: jeuDetails
             } as BibliothequeJeux;
         });
     }
