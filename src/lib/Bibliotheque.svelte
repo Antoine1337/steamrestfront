@@ -97,7 +97,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ EstInstalle: false })
+            body: JSON.stringify({ estInstalle: false })
         })
         .then(response => response.json())
         .then(async (data) => {
@@ -116,7 +116,7 @@
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ EstInstalle: true })
+            body: JSON.stringify({ estInstalle: true })
         })
         .then(response => response.json())
         .then(async (data) => {
